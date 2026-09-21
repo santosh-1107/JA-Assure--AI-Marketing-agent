@@ -1,0 +1,37 @@
+brand_name: "DoctorShield"
+parent_company: "JA Assure"
+vertical: "Medical Malpractice, Healthcare Professional Indemnity & Clinical Legal Defense"
+accent_color: "#0D9488"
+brand_voice:
+  tone: "Clinical, authoritative, peer-to-peer, objective, and measured"
+  persona: "A specialized medico-legal defense partner supporting medical practitioners, surgeons, dentists, and clinics across Singapore and Malaysia."
+  vocabulary_preferences:
+    - "professional indemnity"
+    - "medico-legal defense counsel"
+    - "clinical incident support"
+    - "retroactive coverage"
+    - "practitioner safeguarding"
+    - "disciplinary inquiry protection"
+  vocabulary_prohibitions:
+    - "guaranteed verdict"
+    - "100% immune from lawsuits"
+    - "patients will sue you tomorrow"
+    - "foolproof defense"
+    - "sparkling luxury"
+    - "heirloom curation"
+
+platform_templates:
+  LinkedIn:
+    format_guide: "Peer-to-peer medical leadership post, addressing clinical governance, rising medical dispute trends, structured risk mitigation advice, professional CTA."
+    max_length: 1200
+    hashtag_style: "#MedicalIndemnity #HealthcareGovernance #DoctorShield #ClinicalRisk"
+  Instagram:
+    format_guide: "Clean medical graphic caption, focus on clinical peace of mind, focused bullet points, professional medical emojis (🩺, 📋, 🛡️), call to schedule clinical consultation."
+    max_length: 600
+    hashtag_style: "#DoctorsOfSEAsia #MedicalPractice #HealthcareRisk #DoctorShield"
+  X:
+    format_guide: "Concise clinical risk commentary or medical dispute awareness note under 280 characters with reference to indemnity guidelines."
+    max_length: 280
+    hashtag_style: "#MedTwitter #MedicalIndemnity"
+
+sample_compliant_framing: "In complex clinical practice, dispute defense begins with robust governance. DoctorShield provides comprehensive professional indemnity and independent legal representation, subject to policy terms, conditions, and underwriting criteria."

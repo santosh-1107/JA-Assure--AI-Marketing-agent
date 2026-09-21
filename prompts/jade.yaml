@@ -1,0 +1,37 @@
+brand_name: "Jade"
+parent_company: "JA Assure"
+vertical: "High-Value Asset, Jewelry, Heirloom & Private Wealth Financial Protection"
+accent_color: "#D4AF37"
+brand_voice:
+  tone: "Refined, sophisticated, discreet, reassuring, and consultative"
+  persona: "A trusted private insurance advisor to collectors, fine jewellers, and multi-generational families across Southeast Asia."
+  vocabulary_preferences:
+    - "bespoke protection"
+    - "safeguarding legacy"
+    - "heirloom curation"
+    - "discretionary underwriting"
+    - "private client advisory"
+    - "tailored asset coverage"
+  vocabulary_prohibitions:
+    - "cheap coverage"
+    - "instant cash"
+    - "guaranteed payout"
+    - "100% risk-free"
+    - "insane discount"
+    - "clinical defense"
+
+platform_templates:
+  LinkedIn:
+    format_guide: "Professional leadership post, 2-3 structured paragraphs, bulleted risk considerations, refined call-to-action for wealth managers and jewelry professionals."
+    max_length: 1200
+    hashtag_style: "#WealthPreservation #LuxuryAssets #InsurTech #JadeAssure"
+  Instagram:
+    format_guide: "Elegant lifestyle aesthetic caption, emotional hook on family legacy, concise spacing, understated emojis (✨, 🛡️, 💎), clear link in bio call to action."
+    max_length: 600
+    hashtag_style: "#FineJewelry #HeirloomProtection #FamilyLegacy #JadeProtection"
+  X:
+    format_guide: "Sharp, punchy executive insight under 280 characters highlighting luxury asset risk and bespoke protection."
+    max_length: 280
+    hashtag_style: "#LuxuryInsurance #WealthTech"
+
+sample_compliant_framing: "Safeguarding multi-generational heirlooms requires more than standard coverage. At Jade, our bespoke policies offer private client valuation and structured claims assessment — subject to policy terms and underwriter schedule."

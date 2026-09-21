@@ -1,0 +1,17 @@
+{
+  "id": "insurance_ecosystem",
+  "title": "The Insurance Ecosystem: How Your Premium Travels From Policyholder to Reinsurer",
+  "url": "https://www.ja-assure.com/blog-insurance-ecosystem.html",
+  "brand": "General",
+  "vertical": "Global Insurance Value Chain & Distribution",
+  "keywords": [
+    "insurance ecosystem", "premiums", "reinsurance", "lloyds", "syndicates",
+    "managing general agents", "mga", "brokers", "retrocession"
+  ],
+  "summary": "Traces the journey of premium capital across the global risk distribution hierarchy: direct retail brokers and InsurTech MGAs (like JA Assure), primary insurance carriers, Lloyd's of London syndicates, reinsurance giants, and retrocessionaires who protect the ultimate solvency of the financial system.",
+  "key_facts": [
+    "Managing General Agents (MGAs): JA Assure acts as a specialized InsurTech MGA with delegated underwriting authority from global syndicates.",
+    "Reinsurance backing: complex risks (Specie, Medical Malpractice) are supported by global treaty capacity.",
+    "Risk transfer: premiums pool globally to absorb catastrophic single-event losses."
+  ]
+}

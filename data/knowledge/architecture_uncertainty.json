@@ -1,0 +1,17 @@
+{
+  "id": "architecture_uncertainty",
+  "title": "The Architecture of Uncertainty: Defining Insurance and Its Guiding Principles",
+  "url": "https://www.ja-assure.com/blog-architecture-uncertainty.html",
+  "brand": "General",
+  "vertical": "Insurance Fundamentals & Core Principles",
+  "keywords": [
+    "uncertainty", "risk pooling", "law of large numbers", "indemnity principle",
+    "utmost good faith", "insurable interest", "proximate cause", "subrogation"
+  ],
+  "summary": "Insurance is the mathematical conquest of uncertainty through risk pooling and the law of large numbers. Five fundamental legal principles govern all insurance contracts: 1. Utmost Good Faith (Uberrimae Fidei) requiring full disclosure from both parties; 2. Insurable Interest requiring genuine financial stake; 3. Indemnity restoring the insured to their exact pre-loss financial position without enrichment; 4. Proximate Cause identifying the direct, effective peril; 5. Subrogation and Contribution preventing double recovery.",
+  "key_facts": [
+    "Principle of Indemnity: insurance restores the policyholder to pre-loss state; it is never a vehicle for profit or guaranteed financial gain.",
+    "Utmost Good Faith: policyholder must disclose all material facts regarding risk exposure.",
+    "Risk pooling: diverse individual risks combined into a statistical collective."
+  ]
+}
