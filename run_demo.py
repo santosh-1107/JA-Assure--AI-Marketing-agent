@@ -9,11 +9,20 @@ Usage:
   python run_demo.py --dashboard # Runs only the Streamlit dashboard (port 8501)
 """
 
+import os
 import sys
 import time
 import subprocess
 import argparse
 from pathlib import Path
+
+# Ensure UTF-8 output encoding on Windows consoles
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+        sys.stderr.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
 
 PROJECT_ROOT = Path(__file__).resolve().parent
 
@@ -48,6 +57,10 @@ def main():
     processes = []
 
     try:
+        sub_env = os.environ.copy()
+        sub_env["PYTHONUTF8"] = "1"
+        sub_env["PYTHONIOENCODING"] = "utf-8"
+
         # Launch Backend
         if not args.dashboard:
             print("\n[Launcher] 🚀 Starting FastAPI Backend on http://127.0.0.1:8000 ...")
@@ -63,7 +76,7 @@ def main():
                 "--log-level",
                 "info",
             ]
-            p_backend = subprocess.Popen(backend_cmd, cwd=str(PROJECT_ROOT))
+            p_backend = subprocess.Popen(backend_cmd, cwd=str(PROJECT_ROOT), env=sub_env)
             processes.append(p_backend)
 
         # Launch Streamlit Dashboard
@@ -82,7 +95,7 @@ def main():
                 "--server.headless",
                 "true",
             ]
-            p_dashboard = subprocess.Popen(dashboard_cmd, cwd=str(PROJECT_ROOT))
+            p_dashboard = subprocess.Popen(dashboard_cmd, cwd=str(PROJECT_ROOT), env=sub_env)
             processes.append(p_dashboard)
 
         print("\n" + "=" * 65)
