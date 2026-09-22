@@ -259,13 +259,14 @@ def render_kpi_ribbon(
         )
 
     with k3:
+        rate_val_str = f"{latest_rejection_rate}%" if latest_rejection_rate is not None else "0.0%"
         st.markdown(
             f"""
             <div class="kpi-card">
                 <div class="kpi-label">Latest Rejection Rate</div>
-                <div class="kpi-value" style="color: #60a5fa;">{latest_rejection_rate}%</div>
-                <div class="kpi-caption">Down from 80.0% in Cycle 1</div>
-                <span class="kpi-trend trend-gold">-75% Error Drop</span>
+                <div class="kpi-value" style="color: #60a5fa;">{rate_val_str}</div>
+                <div class="kpi-caption">Derived from live SQLite review cycles</div>
+                <span class="kpi-trend trend-gold">Live Cycle Tracking</span>
             </div>
             """,
             unsafe_allow_html=True,

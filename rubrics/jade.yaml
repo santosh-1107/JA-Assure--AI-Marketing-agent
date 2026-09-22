@@ -1,7 +1,8 @@
 brand: "Jade"
-jurisdiction: "Regional Insurance Advertising Standards"
+jurisdiction: "Insurance Advertising Standards & Brand Governance"
 rules:
   - id: "NO_GUARANTEED_PAYOUT"
+    aliases: ["NO_GUARANTEED_PAYOUT"]
     tier: "REGULATORY"
     category: "Regulatory Prohibition on Guaranteed Outcomes"
     description: "Prohibits any promise of guaranteed claim payouts, unconditional settlements, or instant cash without standard assessment."
@@ -14,9 +15,14 @@ rules:
       - "always pays out"
       - "claims are never denied"
       - "100% claim approval"
+      - "instant claim payout"
+      - "claim payout rate"
+      - "instant payout"
     fail_message: "The content claims or implies guaranteed claim payouts. Insurance regulations require all payout statements to clarify that settlements depend on underwriting review and claim assessment."
+    reference: "General Insurance Advertising Standards — Prohibition on Guaranteed Outcomes"
 
-  - id: "NO_GUARANTEED_PROTECTION"
+  - id: "NO_ABSOLUTE_PROTECTION"
+    aliases: ["NO_GUARANTEED_PROTECTION", "NO_ABSOLUTE_PROTECTION"]
     tier: "REGULATORY"
     category: "Regulatory Prohibition on Absolute Protection"
     description: "Prohibits absolute or superlative protection guarantees such as '100% protected', 'zero risk', or 'bulletproof defense'."
@@ -30,8 +36,10 @@ rules:
       - "absolute guarantee"
       - "never worry again"
     fail_message: "The content uses absolute protection terminology ('100% protected' or 'zero risk'). No insurance policy covers every conceivable loss scenario."
+    reference: "Fair Dealing Guidelines — Absolute Protection Prohibitions"
 
   - id: "QUALIFIED_COVERAGE_CLAIMS"
+    aliases: ["QUALIFIED_COVERAGE_CLAIMS"]
     tier: "REGULATORY"
     category: "Regulatory Disclosure Requirements"
     description: "Coverage descriptions must include appropriate qualification (e.g., 'subject to policy terms and conditions')."
@@ -43,8 +51,10 @@ rules:
       - "policy limits apply"
       - "subject to assessment"
     fail_message: "Coverage scope is stated as an absolute without necessary regulatory disclosures. Marketing assets must include 'subject to policy terms and conditions' or equivalent qualifiers."
+    reference: "Insurance Disclosure Standards — Policy Qualifier Rules"
 
-  - id: "NO_MISLEADING_OR_UNSUPPORTED_CLAIMS"
+  - id: "NO_UNSUPPORTED_CLAIMS"
+    aliases: ["NO_MISLEADING_OR_UNSUPPORTED_CLAIMS", "NO_UNSUPPORTED_CLAIMS"]
     tier: "REGULATORY"
     category: "Truth in Advertising Standards"
     description: "Prohibits unsubstantiated market ranking superlatives (e.g., '#1 insurer in Asia') without verifiable independent citation."
@@ -55,8 +65,10 @@ rules:
       - "cheapest insurance in singapore"
       - "highest payout rate in the world"
     fail_message: "The content contains unverified superlatives or market dominance claims without independent accreditation."
+    reference: "Truth in Advertising Standards — Unsubstantiated Ranking Rules"
 
   - id: "INAPPROPRIATE_SALES_LANGUAGE"
+    aliases: ["INAPPROPRIATE_SALES_LANGUAGE"]
     tier: "BRAND_POLICY"
     category: "JA Assure Fair Dealing Policy"
     description: "Prohibits high-pressure fearmongering, countdown deadlines, or aggressive sales tactics inconsistent with private wealth advisory."
@@ -68,8 +80,10 @@ rules:
       - "act now or face ruin"
       - "flash sale"
     fail_message: "The content employs aggressive sales pressure or fearmongering tactics, violating internal brand standards."
+    reference: "JA Assure Fair Dealing Policy — High-Pressure Sales Ban"
 
   - id: "OFF_BRAND_TONE"
+    aliases: ["OFF_BRAND_TONE"]
     tier: "BRAND_POLICY"
     category: "JA Assure Brand Persona Guidelines"
     description: "Jade content must maintain an understated, luxury, bespoke tone and avoid clinical medical jargon or mass-market slang."
@@ -81,3 +95,4 @@ rules:
       - "cheap deal"
       - "bargain coverage"
     fail_message: "The content contains language misaligned with the Jade brand persona (detected clinical jargon or mass-market discount terminology)."
+    reference: "Jade Brand Persona Guidelines — Luxury Voice Standard"

@@ -1,5 +1,6 @@
 brand_name: "DoctorShield"
 parent_company: "JA Assure"
+prompt_version: "1.0"
 vertical: "Medical Malpractice, Healthcare Professional Indemnity & Clinical Legal Defense"
 accent_color: "#0D9488"
 brand_voice:
@@ -13,6 +14,7 @@ brand_voice:
     - "practitioner safeguarding"
     - "disciplinary inquiry protection"
   vocabulary_prohibitions:
+    - "guaranteed dismissal"
     - "guaranteed verdict"
     - "100% immune from lawsuits"
     - "patients will sue you tomorrow"
@@ -25,13 +27,21 @@ platform_templates:
     format_guide: "Peer-to-peer medical leadership post, addressing clinical governance, rising medical dispute trends, structured risk mitigation advice, professional CTA."
     max_length: 1200
     hashtag_style: "#MedicalIndemnity #HealthcareGovernance #DoctorShield #ClinicalRisk"
+    cta: "Consult our senior medico-legal advisory team to review your retroactive date and coverage schedule: doctorshield.com/advisory"
   Instagram:
     format_guide: "Clean medical graphic caption, focus on clinical peace of mind, focused bullet points, professional medical emojis (🩺, 📋, 🛡️), call to schedule clinical consultation."
     max_length: 600
     hashtag_style: "#DoctorsOfSEAsia #MedicalPractice #HealthcareRisk #DoctorShield"
+    cta: "👉 Schedule a confidential practitioner consultation via the link in our bio."
   X:
     format_guide: "Concise clinical risk commentary or medical dispute awareness note under 280 characters with reference to indemnity guidelines."
     max_length: 280
     hashtag_style: "#MedTwitter #MedicalIndemnity"
+    cta: "Details at doctorshield.com"
 
+mandatory_qualifier: "All professional indemnity limits, legal defense financing, and claims assistance are subject to policy terms, conditions, and underwriting schedule."
 sample_compliant_framing: "In complex clinical practice, dispute defense begins with robust governance. DoctorShield provides comprehensive professional indemnity and independent legal representation, subject to policy terms, conditions, and underwriting criteria."
+
+flaw_simulation:
+  prohibited_phrase: "guaranteed dismissal of patient malpractice claims with 100% protection"
+  urgency_phrase: "Patients will sue you tomorrow! Act now to protect your medical license."

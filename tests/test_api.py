@@ -17,12 +17,20 @@ TEST_DB_PATH = str(Path(__file__).resolve().parent / "test_api.db")
 @pytest.fixture(autouse=True)
 def setup_teardown_api_db(monkeypatch):
     if os.path.exists(TEST_DB_PATH):
-        os.remove(TEST_DB_PATH)
+        try:
+            os.remove(TEST_DB_PATH)
+        except OSError:
+            pass
+    monkeypatch.setenv("DEMO_MODE", "false")
     monkeypatch.setenv("JA_ASSURE_DB_PATH", TEST_DB_PATH)
+    monkeypatch.setenv("JA_ASSURE_DEMO_DB_PATH", TEST_DB_PATH)
     init_db(TEST_DB_PATH)
     yield
     if os.path.exists(TEST_DB_PATH):
-        os.remove(TEST_DB_PATH)
+        try:
+            os.remove(TEST_DB_PATH)
+        except OSError:
+            pass
 
 
 @pytest.fixture

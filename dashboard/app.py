@@ -4,8 +4,10 @@ Enterprise InsurTech Product Workspace.
 Intelligent content. Compliant always. Built for a safer tomorrow.
 """
 
+import os
 import sys
 import yaml
+import requests
 from pathlib import Path
 import streamlit as st
 
@@ -13,7 +15,8 @@ import streamlit as st
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from backend.database import init_db
+from backend.database import init_db, is_demo_mode, get_db_path
+from backend.services.analytics_service import get_dashboard_metrics
 from backend.gemini_service import gemini_service
 from backend.agents.content_agent import content_agent
 from backend.agents.compliance_agent import compliance_agent
@@ -61,12 +64,11 @@ if "search_query" not in st.session_state:
 if "gen_brand" not in st.session_state:
     st.session_state["gen_brand"] = "Jade"
 
-# Real database queries
+# Real database metrics and queue lists
+db_metrics = get_dashboard_metrics()
 pending_items_all = models.list_pending_content()
 approved_items_all = models.list_approved_content()
 feedback_items_all = models.list_all_feedback()
-stats_data = feedback_agent.get_rejection_rate_analytics()
-latest_cycle_rate = stats_data["cycles"][-1]["rejection_rate"] if stats_data.get("cycles") else 20.0
 knowledge_sources_all = load_all_sources()
 
 # 1. Enterprise Sidebar Navigation
@@ -88,13 +90,15 @@ if active_page == "Home":
         # A. Dual Product Panels (JADE & DOCTORSHIELD)
         render_product_panels()
 
-        # B. 5-Card Operational Metric Strip
+        # B. 5-Card Operational Metric Strip backed strictly by live SQLite records
         render_metric_strip(
-            pending_count=len(pending_items_all),
-            approved_count=len(approved_items_all),
-            latest_rejection_rate=latest_cycle_rate,
-            feedback_count=len(feedback_items_all),
-            knowledge_count=len(knowledge_sources_all),
+            pending_count=db_metrics["pending_count"],
+            approved_count=db_metrics["approved_count"],
+            latest_rejection_rate=db_metrics["latest_cycle_rejection_rate"],
+            feedback_count=db_metrics["total_feedback"],
+            knowledge_count=db_metrics["knowledge_source_count"],
+            previous_rejection_rate=db_metrics["previous_cycle_rejection_rate"],
+            approval_rate=db_metrics["approval_rate"],
         )
 
         # C. Content Awaiting Human Review Workspace
@@ -238,36 +242,85 @@ elif active_page == "Generate Content":
                 )
 
     if btn_gen:
+        # Clear previous generation state
+        st.session_state.pop("studio_last_asset", None)
+        
         with st.spinner("Generating marketing copy & verifying compliance..."):
-            past_fb = feedback_agent.get_recent_feedback(brand=c_brand, n=5)
-            gen_res = content_agent.generate(
-                topic=c_topic,
-                brand=c_brand,
-                platform=c_platform,
-                content_type=c_type,
-                research_context=res_ctx,
-                past_corrections=past_fb,
-                force_trigger_flaw=force_trigger,
-                cycle=1 if force_trigger else 2,
-            )
-            comp_res = compliance_agent.check(gen_res["content"], c_brand)
-            saved = models.insert_content(
-                brand=c_brand,
-                platform=c_platform,
-                content_type=c_type,
-                content=gen_res["content"],
-                compliance_result=comp_res,
-                cycle=1 if force_trigger else 2,
-                sources=gen_res.get("sources"),
-                status="pending",
-            )
+            backend_url = os.getenv("BACKEND_URL", "http://localhost:8000")
+            req_payload = {
+                "brand": c_brand,
+                "platform": c_platform,
+                "content_type": c_type,
+                "topic": c_topic.strip(),
+                "force_trigger_flaw": force_trigger,
+                "cycle": 1 if force_trigger else 2,
+                "allow_offline_fallback": True,
+            }
+            saved = None
+            try:
+                resp = requests.post(f"{backend_url}/content/generate", json=req_payload, timeout=12.0)
+                if resp.status_code in (200, 201):
+                    saved = resp.json()
+            except Exception:
+                pass
+
+            # Fallback to direct agent call if backend server is not reachable
+            if not saved:
+                past_fb = feedback_agent.get_recent_feedback(brand=c_brand, n=5)
+                gen_res = content_agent.generate_content(
+                    topic=c_topic.strip(),
+                    brand=c_brand,
+                    platform=c_platform,
+                    content_type=c_type,
+                    rag_context=res_ctx,
+                    past_feedback=past_fb,
+                    force_trigger_flaw=force_trigger,
+                    cycle=1 if force_trigger else 2,
+                    allow_offline_fallback=True,
+                )
+                comp_res = compliance_agent.check(gen_res["content"], c_brand)
+                saved = models.insert_content(
+                    brand=c_brand,
+                    platform=c_platform,
+                    content_type=c_type,
+                    topic=c_topic.strip(),
+                    content=gen_res["content"],
+                    compliance_result=comp_res,
+                    cycle=1 if force_trigger else 2,
+                    sources=gen_res.get("sources"),
+                    generation_mode=gen_res.get("generation_mode", "offline"),
+                    model=gen_res.get("model", "offline-engine"),
+                    prompt_version=gen_res.get("prompt_version", "1.0"),
+                    knowledge_source_ids=gen_res.get("knowledge_source_ids", []),
+                    feedback_ids=gen_res.get("feedback_ids", []),
+                    generation_metadata=gen_res.get("generation_metadata", {}),
+                    status="pending",
+                )
             st.session_state["studio_last_asset"] = saved
             st.toast(f"Asset #{saved['id']} created and grounded in JA Assure knowledge!")
+            st.rerun()
 
     last_studio = st.session_state.get("studio_last_asset")
+    if last_studio and "id" in last_studio:
+        fresh_studio = models.get_content_by_id(last_studio["id"])
+        if fresh_studio:
+            last_studio = fresh_studio
+            st.session_state["studio_last_asset"] = fresh_studio
+
     if last_studio:
         st.markdown("---")
-        st.markdown("#### Draft Preview & Compliance Verification")
+        mode = last_studio.get("generation_mode", "offline")
+        provider = last_studio.get("provider") or last_studio.get("generation_metadata", {}).get("provider") or mode
+        model_name = last_studio.get("model") or "llama-3.3-70b-versatile"
+        if provider == "groq":
+            badge_html = f"<span style='font-size: 0.8rem; color: #EA580C; font-weight: 700; margin-left: 0.5rem;'>⚡ Generated via Groq ({model_name})</span>"
+        elif provider == "gemini":
+            badge_html = "<span style='font-size: 0.8rem; color: #2563EB; font-weight: 700; margin-left: 0.5rem;'>⚡ Generated via Gemini 2.5 Flash Fallback</span>"
+        elif provider == "simulation":
+            badge_html = "<span style='font-size: 0.8rem; color: #DC2626; font-weight: 700; margin-left: 0.5rem;'>🧪 Simulated Flawed Draft (Gate Demo)</span>"
+        else:
+            badge_html = "<span style='font-size: 0.8rem; color: #64748B; font-weight: 700; margin-left: 0.5rem;'>⚙ Generated via Rule-Grounded Engine</span>"
+        st.markdown(f"##### Draft Preview & Compliance Verification {badge_html}", unsafe_allow_html=True)
         render_review_card(last_studio, key_prefix="studio_out")
 
 
@@ -315,13 +368,38 @@ elif active_page == "Review Queue":
     elif f_sort == "Brand":
         filtered_list.sort(key=lambda x: x.get("brand", ""))
 
-    st.markdown(f"<div style='font-size: 0.80rem; color: #64748B; margin-bottom: 0.75rem;'>Showing <b>{len(filtered_list)}</b> items awaiting human review</div>", unsafe_allow_html=True)
+    raw_approved = models.list_approved_content(brand=b_param)
+    filtered_app = []
+    for it in raw_approved:
+        if f_p != "All Platforms" and it.get("platform") != f_p:
+            continue
+        if search_term and search_term.strip():
+            term = search_term.lower().strip()
+            text = (it.get("content", "") + " " + it.get("brand", "") + " " + it.get("platform", "")).lower()
+            if term not in text:
+                continue
+        filtered_app.append(it)
 
-    if not filtered_list:
-        st.info("No content awaiting review matching your criteria.")
-    else:
-        for it in filtered_list:
-            render_review_card(it, key_prefix="queue_view")
+    tab_pending, tab_approved = st.tabs([
+        f"⏳ Pending Review ({len(filtered_list)})",
+        f"✅ Approved Queue ({len(filtered_app)})",
+    ])
+
+    with tab_pending:
+        st.markdown(f"<div style='font-size: 0.80rem; color: #64748B; margin-bottom: 0.75rem;'>Showing <b>{len(filtered_list)}</b> items awaiting human review</div>", unsafe_allow_html=True)
+        if not filtered_list:
+            st.info("No content awaiting review matching active filters.")
+        else:
+            for it in filtered_list:
+                render_review_card(it, key_prefix="queue_view")
+
+    with tab_approved:
+        st.markdown(f"<div style='font-size: 0.80rem; color: #059669; margin-bottom: 0.75rem;'>Showing <b>{len(filtered_app)}</b> approved assets ready for scheduling (editing returns asset to pending)</div>", unsafe_allow_html=True)
+        if not filtered_app:
+            st.info("No approved content matching active filters.")
+        else:
+            for it in filtered_app:
+                render_review_card(it, key_prefix="approved_view")
 
 
 # =====================================================================
@@ -540,9 +618,10 @@ elif active_page == "Settings":
             <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 8px; padding: 1.25rem;">
                 <div style="font-size: 0.95rem; font-weight: 800; color: #0F172A; margin-bottom: 0.5rem;">System Engine Status</div>
                 <div style="font-size: 0.80rem; color: #475569; line-height: 1.6;">
-                    • <b>Engine Status:</b> {'Live Gemini Studio' if llm_status['is_live'] else 'Deterministic InsurTech Engine'}<br/>
+                    • <b>Engine Status:</b> {'Live Gemini Studio' if llm_status['is_live'] else 'Deterministic InsurTech Engine (Offline)'}<br/>
                     • <b>Active Model:</b> {llm_status.get('model', 'Deterministic Rule Base')}<br/>
-                    • <b>Storage:</b> SQLite Local Database<br/>
+                    • <b>Storage Path:</b> <code>{get_db_path()}</code><br/>
+                    • <b>Demo Mode:</b> {'Enabled (Isolated Demo Database)' if is_demo_mode() else 'Disabled (Production Database)'}<br/>
                     • <b>Knowledge Base:</b> 5 Verified JSON Documents<br/>
                     • <b>Operating Region:</b> Singapore (HQ) & Southeast Asia
                 </div>
@@ -552,9 +631,15 @@ elif active_page == "Settings":
         )
 
     st.markdown("---")
-    st.markdown("#### Database Maintenance")
-    if st.button("🔄 Reset & Re-Seed Demo Benchmark Dataset", type="secondary"):
-        from scripts.seed_demo import seed_data
-        seed_data()
-        st.toast("Database restored to baseline 4-cycle benchmark (80% -> 20%)!")
-        st.rerun()
+    st.markdown("#### Demo Workspace Isolation")
+    if is_demo_mode():
+        st.caption("Active Database: `data/demo/ja_assure_demo.db`. Actions will NOT affect the production database.")
+        if st.button("Load Demo Workspace", type="primary"):
+            from scripts.seed_demo import seed_data
+            seed_data()
+            st.toast("Demo workspace fixture successfully loaded into isolated demo database!")
+            st.rerun()
+    else:
+        st.caption("Active Database: `data/ja_assure.db` (Production Runtime).")
+        st.info("Demo reset is disabled in production runtime. To load demo benchmark fixtures, launch with `DEMO_MODE=true`.")
+        st.button("Load Demo Workspace (Disabled in Production Mode)", disabled=True)

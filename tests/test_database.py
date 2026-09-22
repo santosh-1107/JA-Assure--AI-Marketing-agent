@@ -47,6 +47,7 @@ def test_human_approval_workflow():
         platform="LinkedIn",
         content_type="post",
         content="Clinical indemnity post.",
+        compliance_result={"status": "pass", "reasons": []},
         status="pending",
         db_path=TEST_DB_PATH,
     )
@@ -105,6 +106,7 @@ def test_schedule_rule_enforces_previous_human_approval():
         platform="LinkedIn",
         content_type="post",
         content="Unreviewed draft post.",
+        compliance_result={"status": "pass", "reasons": []},
         status="pending",
         db_path=TEST_DB_PATH,
     )
@@ -129,14 +131,14 @@ def test_rejection_rate_calculation():
         c = models.insert_content(brand="Jade", platform="X", content_type="tweet", content=f"Bad {i}", cycle=1, status="pending", db_path=TEST_DB_PATH)
         models.reject_content(c["id"], tag="too_salesy", note="Too aggressive", db_path=TEST_DB_PATH)
     
-    c_app = models.insert_content(brand="Jade", platform="X", content_type="tweet", content="Good", cycle=1, status="pending", db_path=TEST_DB_PATH)
+    c_app = models.insert_content(brand="Jade", platform="X", content_type="tweet", content="Good", compliance_result={"status": "pass", "reasons": []}, cycle=1, status="pending", db_path=TEST_DB_PATH)
     models.approve_content(c_app["id"], db_path=TEST_DB_PATH)
 
     # Seed Cycle 2: 1 rejected, 4 approved -> 20%
     c2_bad = models.insert_content(brand="Jade", platform="X", content_type="tweet", content="Bad C2", cycle=2, status="pending", db_path=TEST_DB_PATH)
     models.reject_content(c2_bad["id"], tag="wrong_cta", note="Fix CTA", db_path=TEST_DB_PATH)
     for j in range(4):
-        c2_ok = models.insert_content(brand="Jade", platform="X", content_type="tweet", content=f"Good {j}", cycle=2, status="pending", db_path=TEST_DB_PATH)
+        c2_ok = models.insert_content(brand="Jade", platform="X", content_type="tweet", content=f"Good {j}", compliance_result={"status": "pass", "reasons": []}, cycle=2, status="pending", db_path=TEST_DB_PATH)
         models.approve_content(c2_ok["id"], db_path=TEST_DB_PATH)
 
     stats = models.get_rejection_rate_by_cycle(db_path=TEST_DB_PATH)

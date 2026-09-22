@@ -17,6 +17,8 @@ data/*.sqlite3
 *.db
 *.sqlite
 *.sqlite3
+data/chromadb/
+data/images/
 
 # Python cache & build artifacts
 __pycache__/

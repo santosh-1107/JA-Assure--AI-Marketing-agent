@@ -1,9 +1,10 @@
 """
 JA Assure AI Marketing Agent — Unified Demo Launcher
 Runs the FastAPI backend and Streamlit review dashboard simultaneously for local hackathon judging.
+Operates on the isolated demo database (data/demo/ja_assure_demo.db) to protect production data.
 
 Usage:
-  python run_demo.py            # Runs both backend & dashboard
+  python run_demo.py            # Runs both backend & dashboard in DEMO_MODE
   python run_demo.py --seed     # Re-seeds demo database first, then runs both
   python run_demo.py --backend  # Runs only the FastAPI backend (port 8000)
   python run_demo.py --dashboard # Runs only the Streamlit dashboard (port 8501)
@@ -25,24 +26,26 @@ if sys.platform == "win32":
         pass
 
 PROJECT_ROOT = Path(__file__).resolve().parent
+from backend.database import DEMO_DB_PATH, init_db, get_connection
 
 
 def run_init_and_seed(force_seed: bool = False):
-    from backend.database import init_db, get_connection
-    init_db()
+    """Ensure demo database exists and is populated with demo review benchmarks."""
+    demo_db_str = str(DEMO_DB_PATH)
+    init_db(demo_db_str)
 
-    conn = get_connection()
+    conn = get_connection(demo_db_str)
     cursor = conn.cursor()
     cursor.execute("SELECT COUNT(*) FROM content_queue")
     count = cursor.fetchone()[0]
     conn.close()
 
     if count == 0 or force_seed:
-        print("[Launcher] Seeding demo database with 4 cycles of InsurTech review data...")
+        print(f"[Launcher] Seeding isolated demo database ({demo_db_str}) with 4 cycles of InsurTech review data...")
         from scripts.seed_demo import seed_data
-        seed_data()
+        seed_data(db_path=demo_db_str)
     else:
-        print(f"[Launcher] Database contains {count} content items. Ready.")
+        print(f"[Launcher] Demo database contains {count} content items. Ready.")
 
 
 def main():
@@ -60,6 +63,8 @@ def main():
         sub_env = os.environ.copy()
         sub_env["PYTHONUTF8"] = "1"
         sub_env["PYTHONIOENCODING"] = "utf-8"
+        sub_env["DEMO_MODE"] = "true"
+        sub_env["JA_ASSURE_DB_PATH"] = str(DEMO_DB_PATH)
 
         # Launch Backend
         if not args.dashboard:
@@ -99,7 +104,8 @@ def main():
             processes.append(p_dashboard)
 
         print("\n" + "=" * 65)
-        print("  JA ASSURE AI MARKETING AGENT RUNNING")
+        print("  JA ASSURE AI MARKETING AGENT RUNNING (DEMO WORKSPACE)")
+        print(f"  - Database: {DEMO_DB_PATH}")
         print("  - Streamlit Dashboard: http://localhost:8501")
         print("  - FastAPI Docs (Swagger): http://127.0.0.1:8000/docs")
         print("  Press Ctrl+C to stop all services.")
